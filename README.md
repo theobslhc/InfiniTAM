@@ -64,8 +64,13 @@ Several 3rd party libraries are needed for compiling InfiniTAM. The given versio
 ```
   $ mkdir build
   $ cd build
-  $ cmake /path/to/InfiniTAM -DOPEN_NI_ROOT=/path/to/OpenNI2/ [-DCMAKE_INSTALL_PREFIX=/install/path/for/libraries]
+  $ cmake /path/to/InfiniTAM -DOPEN_NI_ROOT=/path/to/OpenNI2/
   $ make
+```
+  If you want to install the libraries to a custom location :
+```
+  $ cmake /path/to/InfiniTAM -DOPEN_NI_ROOT=/path/to/OpenNI2/ \
+  	  -DCMAKE_INSTALL_PREFIX=/install/path/for/libraries
   $ make install
 ```
   To create a doxygen documentation, just run doxygen:
