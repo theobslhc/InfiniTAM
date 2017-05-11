@@ -221,3 +221,15 @@ else()
 endif()
 
 target_link_libraries(ITMLib Utils)
+
+############################
+# Install rules for ITMLib #
+############################
+
+#install lib
+install(TARGETS ITMLib
+        DESTINATION lib/InfiniTAM/ITMLib)
+#install headers
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/. DESTINATION include/InfiniTAM/ITMLib
+        FILES_MATCHING REGEX "^.*\\.(h|hpp)$"
+        ) #PATTERN "*/containers" EXCLUDE

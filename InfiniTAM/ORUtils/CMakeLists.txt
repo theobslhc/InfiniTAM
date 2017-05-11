@@ -37,17 +37,14 @@ SOURCE_GROUP("" FILES ${ORUTILS_HEADERS})
 
 add_library(ORUtils ${ORUTILS_OBJECTS})
 
-IF(WITH_CUDA)
-#  include_directories(${CUDA_INCLUDE_DIRS})
-#  cuda_add_library(ITMLib
-#	${ITMLIB_CPU_OBJECTS}
-#	${ITMLIB_CUDA_OBJECTS}
-#	${ITMLIB_COMMON_OBJECTS}
-#	OPTIONS -gencode arch=compute_11,code=compute_11 -gencode arch=compute_30,code=compute_30)
-#  target_link_libraries(ITMLib ${CUDA_LIBRARY})
-ELSE()
-#  add_definitions(-DCOMPILE_WITHOUT_CUDA)
-#  add_library(ITMLib ${ITMLIB_CPU_OBJECTS} ${ITMLIB_COMMON_OBJECTS})
-ENDIF()
+#############################
+# Install rules for ORUtils #
+#############################
 
-#target_link_libraries(ITMLib Utils)
+#install lib
+install(TARGETS ORUtils
+        DESTINATION lib/InfiniTAM/ORUtils)
+#install headers
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/. DESTINATION include/InfiniTAM/ORUtils
+        FILES_MATCHING REGEX "^.*\\.(h|hpp)$"
+        ) #PATTERN "*/containers" EXCLUDE

@@ -20,3 +20,14 @@ IF(PNG_FOUND)
   target_link_libraries(Utils ${PNG_LIBRARIES})
 ENDIF()
 
+###########################
+# Install rules for Utils #
+###########################
+
+#install lib
+install(TARGETS Utils
+        DESTINATION lib/InfiniTAM/Utils)
+#install headers
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/. DESTINATION include/InfiniTAM/Utils
+        FILES_MATCHING REGEX "^.*\\.(h|hpp)$"
+        ) #PATTERN "*/containers" EXCLUDE

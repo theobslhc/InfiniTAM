@@ -11,7 +11,7 @@ This is the software bundle "InfiniTAM",  the current version is maintained by:
   Ian D Reid <ian.reid@adelaide.edu.au>  
   David W Murray <dwm@robots.ox.ac.uk>
 
-For more information about InfiniTAM please visit the project website <http://www.infinitam.org>. 
+For more information about InfiniTAM please visit the project website <http://www.infinitam.org>.
 
 Other related projects can be found in the Oxford Active Vision Library <http://www.oxvisionlib.org>.
 
@@ -64,8 +64,9 @@ Several 3rd party libraries are needed for compiling InfiniTAM. The given versio
 ```
   $ mkdir build
   $ cd build
-  $ cmake /path/to/InfiniTAM -DOPEN_NI_ROOT=/path/to/OpenNI2/
+  $ cmake /path/to/InfiniTAM -DOPEN_NI_ROOT=/path/to/OpenNI2/ [-DCMAKE_INSTALL_PREFIX=/install/path/for/libraries]
   $ make
+  $ make install
 ```
   To create a doxygen documentation, just run doxygen:
 ```
@@ -80,7 +81,7 @@ Padding the data structure ITMVoxel in ITMLibDefines.h with one extra byte may o
 
 On Mac OS X 10.9 there are currently some issues with libc++ vs. libstdc++ in conjunction with CUDA. They eventually manifest in error messages like:
 ```
-Undefined symbols for architecture x86_64: 
+Undefined symbols for architecture x86_64:
 "std::ios_base::Init::Init()", referenced from:
       __GLOBAL__I_a in libITMLib.a(ITMLib_generated_ITMColorTracker_CUDA.cu.o)
       __GLOBAL__I_a in libITMLib.a(ITMLib_generated_ITMDepthTracker_CUDA.cu.o)
@@ -120,7 +121,7 @@ author = {{K{\"a}hler}, O. and
 		  {Torr}, P.~H.~S and
 		  {Murray}, D.~W.},
 title = "{Very High Frame Rate Volumetric Integration of Depth Images on Mobile Device}",
-journal = "{IEEE Transactions on Visualization and Computer Graphics 
+journal = "{IEEE Transactions on Visualization and Computer Graphics
 	   (Proceedings International Symposium on Mixed and Augmented Reality 2015}",
 volume = {22},
 number = {11},
@@ -152,4 +153,3 @@ year = 2014
 
 - 2015-JUL-10: updated dependencies, added reference to ISMAR paper
 - 2014-OCT-06: initial public release
-

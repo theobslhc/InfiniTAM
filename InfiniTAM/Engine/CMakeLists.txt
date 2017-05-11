@@ -74,3 +74,15 @@ ENDIF()
 IF(WITH_LIBROYALE)
   target_link_libraries(Engine ${LibRoyale_LIBRARY})
 ENDIF(WITH_LIBROYALE)
+
+############################
+# Install rules for Engine #
+############################
+
+#install lib
+install(TARGETS Engine
+DESTINATION lib/InfiniTAM/Engine)
+#install headers
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/. DESTINATION include/InfiniTAM/Engine
+        FILES_MATCHING REGEX "^.*\\.(h|hpp)$"
+        ) #PATTERN "*/containers" EXCLUDE
