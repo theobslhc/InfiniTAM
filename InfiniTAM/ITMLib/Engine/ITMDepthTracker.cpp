@@ -15,7 +15,7 @@ ITMDepthTracker::ITMDepthTracker(Vector2i imgSize, TrackerIterationType *trackin
 
 	this->noIterationsPerLevel = new int[noHierarchyLevels];
 	this->distThresh = new float[noHierarchyLevels];
-	
+
 	this->noIterationsPerLevel[0] = 2; //TODO -> make parameter
 	for (int levelId = 1; levelId < noHierarchyLevels; levelId++)
 	{
@@ -34,8 +34,8 @@ ITMDepthTracker::ITMDepthTracker(Vector2i imgSize, TrackerIterationType *trackin
 	this->terminationThreshold = terminationThreshold;
 }
 
-ITMDepthTracker::~ITMDepthTracker(void) 
-{ 
+ITMDepthTracker::~ITMDepthTracker(void)
+{
 	delete this->viewHierarchy;
 	delete this->sceneHierarchy;
 
@@ -174,6 +174,7 @@ void ITMDepthTracker::TrackCamera(ITMTrackingState *trackingState, const ITMView
 				trackingState->pose_d->SetFrom(&lastKnownGoodPose);
 				approxInvPose = trackingState->pose_d->GetInvM();
 				lambda *= 10.0f;
+				continue;
 			} else {
 				lastKnownGoodPose.SetFrom(trackingState->pose_d);
 				f_old = f_new;
@@ -197,4 +198,3 @@ void ITMDepthTracker::TrackCamera(ITMTrackingState *trackingState, const ITMView
 		}
 	}
 }
-

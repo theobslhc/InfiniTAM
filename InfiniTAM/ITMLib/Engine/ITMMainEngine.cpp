@@ -14,7 +14,7 @@ ITMMainEngine::ITMMainEngine(const ITMLibSettings *settings, const ITMRGBDCalib 
 
 	this->settings = settings;
 
-	this->scene = new ITMScene<ITMVoxel, ITMVoxelIndex>(&(settings->sceneParams), settings->useSwapping, 
+	this->scene = new ITMScene<ITMVoxel, ITMVoxelIndex>(&(settings->sceneParams), settings->useSwapping,
 		settings->deviceType == ITMLibSettings::DEVICE_CUDA ? MEMORYDEVICE_CUDA : MEMORYDEVICE_CPU);
 
 	meshingEngine = NULL;
@@ -43,6 +43,51 @@ ITMMainEngine::ITMMainEngine(const ITMLibSettings *settings, const ITMRGBDCalib 
 #endif
 		break;
 	}
+
+	/***** settings to string ****/
+	/*
+	std::cout << "use swappingggg " << settings->useSwapping << "\n";
+	std::cout << "useApproximateRaycast " << settings->useApproximateRaycast << "\n";
+	std::cout << "useBilateralFilter " << settings->useBilateralFilter << "\n";
+	std::cout << "modelSensorNoise " << settings->modelSensorNoise << "\n";
+	std::cout << "trackertype " << settings->trackerType << "\n";
+	std::cout << "noHierarchyLevels " << settings->noHierarchyLevels << "\n";
+	std::cout << "noICPRunTillLevel " << settings->noICPRunTillLevel << "\n";
+	std::cout << "skipPoints " << settings->skipPoints << "\n";
+	std::cout << "depthTrackerICPThreshold " << settings->depthTrackerICPThreshold << "\n";
+	std::cout << "depthTrackerTerminationThreshold " << settings->depthTrackerTerminationThreshold << "\n";
+
+	std::cout << "voxelSize " << settings->sceneParams.voxelSize << "\n";
+	std::cout << "viewFrustum_min " << settings->sceneParams.viewFrustum_min << "\n";
+	std::cout << "viewFrustum_max " << settings->sceneParams.viewFrustum_max << "\n";
+
+	std::cout << "intrinsics_rgb fx " << calib->intrinsics_rgb.projectionParamsSimple.fx << "\n";
+	std::cout << "intrinsics_rgb fy " << calib->intrinsics_rgb.projectionParamsSimple.fy << "\n";
+	std::cout << "intrinsics_rgb cx " << calib->intrinsics_rgb.projectionParamsSimple.px << "\n";
+	std::cout << "intrinsics_rgb cy " << calib->intrinsics_rgb.projectionParamsSimple.py << "\n";
+	std::cout << "intrinsics_d fx " << calib->intrinsics_d.projectionParamsSimple.fx << "\n";
+	std::cout << "intrinsics_d fy " << calib->intrinsics_d.projectionParamsSimple.fy << "\n";
+	std::cout << "intrinsics_d cx " << calib->intrinsics_d.projectionParamsSimple.px << "\n";
+	std::cout << "intrinsics_d cy " << calib->intrinsics_d.projectionParamsSimple.py << "\n";
+
+	std::cout << "img size rgb " << imgSize_rgb.x << " x "<< imgSize_rgb.y << "\n";
+	std::cout << "img size depth " << imgSize_d.x << " x "<< imgSize_d.y << "\n";
+
+	std::cout << "Trafo RGB to depth " << calib->trafo_rgb_to_depth.calib.getValues()[0] << " " << calib->trafo_rgb_to_depth.calib.getValues()[1] << " " << calib->trafo_rgb_to_depth.calib.getValues()[2] << " " << calib->trafo_rgb_to_depth.calib.getValues()[3]<< "\n";
+	std::cout << "                   " << calib->trafo_rgb_to_depth.calib.getValues()[4] << " " << calib->trafo_rgb_to_depth.calib.getValues()[5] << " " << calib->trafo_rgb_to_depth.calib.getValues()[6] << " " << calib->trafo_rgb_to_depth.calib.getValues()[7]<< "\n";
+	std::cout << "                   " << calib->trafo_rgb_to_depth.calib.getValues()[8] << " " << calib->trafo_rgb_to_depth.calib.getValues()[9] << " " << calib->trafo_rgb_to_depth.calib.getValues()[10] << " " << calib->trafo_rgb_to_depth.calib.getValues()[11]<< "\n";
+	std::cout << "                   " << calib->trafo_rgb_to_depth.calib.getValues()[12] << " " << calib->trafo_rgb_to_depth.calib.getValues()[13] << " " << calib->trafo_rgb_to_depth.calib.getValues()[14] << " " << calib->trafo_rgb_to_depth.calib.getValues()[15]<< "\n";
+
+*/
+
+	if(calib->disparityCalib.type==0){
+		std::cout << "Disparity calib type KINECT" << "\n";
+	}
+	else{
+		std::cout << "Disparity calib type AFFINE" << "\n";
+	}
+	std::cout << "Disparity calib x " << calib->disparityCalib.params.x << "\n";
+	std::cout << "Disparity calib y " << calib->disparityCalib.params.y << "\n";
 
 	mesh = NULL;
 	if (createMeshingEngine) mesh = new ITMMesh(settings->deviceType == ITMLibSettings::DEVICE_CUDA ? MEMORYDEVICE_CUDA : MEMORYDEVICE_CPU);
@@ -109,6 +154,20 @@ void ITMMainEngine::SaveSceneToMesh(const char *objFileName)
 
 void ITMMainEngine::ProcessFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, ITMIMUMeasurement *imuMeasurement)
 {
+	Vector4u *dataPtr = rgbImage->GetData(MEMORYDEVICE_CPU);
+	//printf("%d %d\n",rgbImage->noDims.x,rgbImage->noDims.y);
+
+	short min = 1000.0;
+	short max = 0.0;
+
+	short *dataPtr2 = rawDepthImage->GetData(MEMORYDEVICE_CPU);
+	//printf("%d %d\n",rawDepthImage->noDims.x,rawDepthImage->noDims.y);
+	for(int i=0;i<rawDepthImage->noDims.x*rawDepthImage->noDims.y;i++){
+		if(min > dataPtr2[i]) min = dataPtr2[i];
+		if(max < dataPtr2[i]) max = dataPtr2[i];
+	}
+	//printf("min %d max %d\n",min,max);
+
 	// prepare image and turn it into a depth image
 	if (imuMeasurement==NULL) viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter,settings->modelSensorNoise);
 	else viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter, imuMeasurement);
@@ -117,6 +176,42 @@ void ITMMainEngine::ProcessFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDep
 
 	// tracking
 	trackingController->Track(trackingState, view);
+
+	printf("Tracking-Pose ITM-ICP:\n");
+	for(int i=0;i<4;i++){
+		for(int j=0;j<4;j++){
+			printf("%.2f ", trackingState->pose_d->GetM().getValues()[i*4+j]);
+		}
+		printf("\n");
+	}
+
+
+	// fusion
+	if (fusionActive) denseMapper->ProcessFrame(view, trackingState, scene, renderState_live);
+
+	// raycast to renderState_live for tracking and free visualisation
+	trackingController->Prepare(trackingState, view, renderState_live);
+}
+
+void ITMMainEngine::ProcessFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, Matrix4f* icp)
+{
+	// prepare image and turn it into a depth image
+	viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter,settings->modelSensorNoise);
+
+	if (!mainProcessingActive) return;
+
+	// tracking
+	//trackingController->Track(trackingState, view);
+	trackingState->requiresFullRendering = true;
+	if (trackingState->age_pointCloud!=-1) trackingState->pose_d->SetM(*icp);
+
+	printf("Tracking-Pose own ICP:\n");
+	for(int i=0;i<4;i++){
+		for(int j=0;j<4;j++){
+			printf("%.2f ", trackingState->pose_d->GetM().getValues()[i*4+j]);
+		}
+		printf("\n");
+	}
 
 	// fusion
 	if (fusionActive) denseMapper->ProcessFrame(view, trackingState, scene, renderState_live);
@@ -140,7 +235,7 @@ void ITMMainEngine::GetImage(ITMUChar4Image *out, GetImageType getImageType, ITM
 	{
 	case ITMMainEngine::InfiniTAM_IMAGE_ORIGINAL_RGB:
 		out->ChangeDims(view->rgb->noDims);
-		if (settings->deviceType == ITMLibSettings::DEVICE_CUDA) 
+		if (settings->deviceType == ITMLibSettings::DEVICE_CUDA)
 			out->SetFrom(view->rgb, ORUtils::MemoryBlock<Vector4u>::CUDA_TO_CPU);
 		else out->SetFrom(view->rgb, ORUtils::MemoryBlock<Vector4u>::CPU_TO_CPU);
 		break;
@@ -164,7 +259,7 @@ void ITMMainEngine::GetImage(ITMUChar4Image *out, GetImageType getImageType, ITM
 		out->ChangeDims(srcImage->noDims);
 		if (settings->deviceType == ITMLibSettings::DEVICE_CUDA)
 			out->SetFrom(srcImage, ORUtils::MemoryBlock<Vector4u>::CUDA_TO_CPU);
-		else out->SetFrom(srcImage, ORUtils::MemoryBlock<Vector4u>::CPU_TO_CPU);	
+		else out->SetFrom(srcImage, ORUtils::MemoryBlock<Vector4u>::CPU_TO_CPU);
 		break;
 	}
 	case ITMMainEngine::InfiniTAM_IMAGE_FREECAMERA_SHADED:

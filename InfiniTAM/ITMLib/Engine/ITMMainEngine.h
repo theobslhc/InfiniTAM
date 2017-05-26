@@ -58,7 +58,7 @@ namespace ITMLib
 			ITMMeshingEngine<ITMVoxel, ITMVoxelIndex> *meshingEngine;
 			ITMMesh *mesh;
 
-			ITMViewBuilder *viewBuilder;		
+			ITMViewBuilder *viewBuilder;
 			ITMDenseMapper<ITMVoxel,ITMVoxelIndex> *denseMapper;
 			ITMTrackingController *trackingController;
 
@@ -95,6 +95,7 @@ namespace ITMLib
 
 			/// Process a frame with rgb and depth images and optionally a corresponding imu measurement
 			void ProcessFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, ITMIMUMeasurement *imuMeasurement = NULL);
+			void ProcessFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, Matrix4f* icp);
 
 			// Gives access to the data structure used internally to store any created meshes
 			ITMMesh* GetMesh(void) { return mesh; }
@@ -127,4 +128,3 @@ namespace ITMLib
 		};
 	}
 }
-
