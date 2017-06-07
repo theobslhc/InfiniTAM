@@ -6,12 +6,12 @@
 using namespace ITMLib::Engine;
 
 template<class TVoxel>
-ITMMeshingEngine_CPU<TVoxel,ITMVoxelBlockHash>::ITMMeshingEngine_CPU(void) 
+ITMMeshingEngine_CPU<TVoxel,ITMVoxelBlockHash>::ITMMeshingEngine_CPU(void)
 {
 }
 
 template<class TVoxel>
-ITMMeshingEngine_CPU<TVoxel,ITMVoxelBlockHash>::~ITMMeshingEngine_CPU(void) 
+ITMMeshingEngine_CPU<TVoxel,ITMVoxelBlockHash>::~ITMMeshingEngine_CPU(void)
 {
 }
 
@@ -19,6 +19,7 @@ template<class TVoxel>
 void ITMMeshingEngine_CPU<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMMesh *mesh, const ITMScene<TVoxel, ITMVoxelBlockHash> *scene)
 {
 	ITMMesh::Triangle *triangles = mesh->triangles->GetData(MEMORYDEVICE_CPU);
+	ITMMesh::Triangle *triangleColorMap = mesh->triangleColorMap->GetData(MEMORYDEVICE_CPU);
 	const TVoxel *localVBA = scene->localVBA.GetVoxelBlocks();
 	const ITMHashEntry *hashTable = scene->index.GetEntries();
 
@@ -26,6 +27,7 @@ void ITMMeshingEngine_CPU<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMMesh *mesh, c
 	float factor = scene->sceneParams->voxelSize;
 
 	mesh->triangles->Clear();
+	mesh->triangleColorMap->Clear();
 
 	for (int entryId = 0; entryId < noTotalEntries; entryId++)
 	{
@@ -39,8 +41,10 @@ void ITMMeshingEngine_CPU<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMMesh *mesh, c
 		for (int z = 0; z < SDF_BLOCK_SIZE; z++) for (int y = 0; y < SDF_BLOCK_SIZE; y++) for (int x = 0; x < SDF_BLOCK_SIZE; x++)
 		{
 			Vector3f vertList[12];
-			int cubeIndex = buildVertList(vertList, globalPos, Vector3i(x, y, z), localVBA, hashTable);
-			
+			Vector3f vertListColorMap[12];
+			//printf("build vert list\n");
+			int cubeIndex = buildVertList(vertList, vertListColorMap, globalPos, Vector3i(x, y, z), localVBA, hashTable);
+			//printf("build vert list end\n");
 			if (cubeIndex < 0) continue;
 
 			for (int i = 0; triangleTable[cubeIndex][i] != -1; i += 3)
@@ -48,6 +52,13 @@ void ITMMeshingEngine_CPU<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMMesh *mesh, c
 				triangles[noTriangles].p0 = vertList[triangleTable[cubeIndex][i]] * factor;
 				triangles[noTriangles].p1 = vertList[triangleTable[cubeIndex][i + 1]] * factor;
 				triangles[noTriangles].p2 = vertList[triangleTable[cubeIndex][i + 2]] * factor;
+
+				triangleColorMap[noTriangles].p0 =vertListColorMap[triangleTable[cubeIndex][i]];
+				triangleColorMap[noTriangles].p1 =vertListColorMap[triangleTable[cubeIndex][i+1]];
+				triangleColorMap[noTriangles].p2 =vertListColorMap[triangleTable[cubeIndex][i+2]];
+
+				//printf("color %.2f %.2f %.2f\n",vertListColorMap[triangleTable[cubeIndex][i]].x,vertListColorMap[triangleTable[cubeIndex][i]].y,vertListColorMap[triangleTable[cubeIndex][i]].z);
+				//printf("%.2f %.2f %.2f\n",triangles[noTriangles].p0,triangles[noTriangles].p1,triangles[noTriangles].p2);
 
 				if (noTriangles < noMaxTriangles - 1) noTriangles++;
 			}
@@ -58,11 +69,11 @@ void ITMMeshingEngine_CPU<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMMesh *mesh, c
 }
 
 template<class TVoxel>
-ITMMeshingEngine_CPU<TVoxel,ITMPlainVoxelArray>::ITMMeshingEngine_CPU(void) 
+ITMMeshingEngine_CPU<TVoxel,ITMPlainVoxelArray>::ITMMeshingEngine_CPU(void)
 {}
 
 template<class TVoxel>
-ITMMeshingEngine_CPU<TVoxel,ITMPlainVoxelArray>::~ITMMeshingEngine_CPU(void) 
+ITMMeshingEngine_CPU<TVoxel,ITMPlainVoxelArray>::~ITMMeshingEngine_CPU(void)
 {}
 
 template<class TVoxel>

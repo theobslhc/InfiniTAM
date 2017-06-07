@@ -7,7 +7,7 @@
 using namespace ITMLib::Engine;
 
 template<class TVoxel>
-ITMSceneReconstructionEngine_CPU<TVoxel,ITMVoxelBlockHash>::ITMSceneReconstructionEngine_CPU(void) 
+ITMSceneReconstructionEngine_CPU<TVoxel,ITMVoxelBlockHash>::ITMSceneReconstructionEngine_CPU(void)
 {
 	int noTotalEntries = ITMVoxelBlockHash::noTotalEntries;
 	entriesAllocType = new ORUtils::MemoryBlock<unsigned char>(noTotalEntries, MEMORYDEVICE_CPU);
@@ -15,7 +15,7 @@ ITMSceneReconstructionEngine_CPU<TVoxel,ITMVoxelBlockHash>::ITMSceneReconstructi
 }
 
 template<class TVoxel>
-ITMSceneReconstructionEngine_CPU<TVoxel,ITMVoxelBlockHash>::~ITMSceneReconstructionEngine_CPU(void) 
+ITMSceneReconstructionEngine_CPU<TVoxel,ITMVoxelBlockHash>::~ITMSceneReconstructionEngine_CPU(void)
 {
 	delete entriesAllocType;
 	delete blockCoords;
@@ -58,6 +58,7 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::IntegrateIntoS
 	ITMRenderState_VH *renderState_vh = (ITMRenderState_VH*)renderState;
 
 	M_d = trackingState->pose_d->GetM();
+	printf("hasColorInfo %d\n", (int)TVoxel::hasColorInformation);
 	if (TVoxel::hasColorInformation) M_rgb = view->calib->trafo_rgb_to_depth.calib_inv * M_d;
 
 	projParams_d = view->calib->intrinsics_d.projectionParamsSimple.all;
@@ -107,7 +108,7 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::IntegrateIntoS
 			pt_model.z = (float)(globalPos.z + z) * voxelSize;
 			pt_model.w = 1.0f;
 
-			ComputeUpdatedVoxelInfo<TVoxel::hasColorInformation,TVoxel>::compute(localVoxelBlock[locId], pt_model, M_d, 
+			ComputeUpdatedVoxelInfo<TVoxel::hasColorInformation,TVoxel>::compute(localVoxelBlock[locId], pt_model, M_d,
 				projParams_d, M_rgb, projParams_rgb, mu, maxW, depth, depthImgSize, rgb, rgbImgSize);
 		}
 	}
@@ -231,7 +232,7 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::AllocateSceneF
 	{
 		unsigned char hashVisibleType = entriesVisibleType[targetIdx];
 		const ITMHashEntry &hashEntry = hashTable[targetIdx];
-		
+
 		if (hashVisibleType == 3)
 		{
 			bool isVisibleEnlarged, isVisible;
@@ -253,7 +254,7 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::AllocateSceneF
 		}
 
 		if (hashVisibleType > 0)
-		{	
+		{
 			visibleEntryIDs[noVisibleEntries] = targetIdx;
 			noVisibleEntries++;
 		}
@@ -276,7 +277,7 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::AllocateSceneF
 			int vbaIdx;
 			ITMHashEntry hashEntry = hashTable[targetIdx];
 
-			if (entriesVisibleType[targetIdx] > 0 && hashEntry.ptr == -1) 
+			if (entriesVisibleType[targetIdx] > 0 && hashEntry.ptr == -1)
 			{
 				vbaIdx = lastFreeVoxelBlockId; lastFreeVoxelBlockId--;
 				if (vbaIdx >= 0) hashTable[targetIdx].ptr = voxelAllocationList[vbaIdx];
@@ -291,11 +292,11 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::AllocateSceneF
 }
 
 template<class TVoxel>
-ITMSceneReconstructionEngine_CPU<TVoxel,ITMPlainVoxelArray>::ITMSceneReconstructionEngine_CPU(void) 
+ITMSceneReconstructionEngine_CPU<TVoxel,ITMPlainVoxelArray>::ITMSceneReconstructionEngine_CPU(void)
 {}
 
 template<class TVoxel>
-ITMSceneReconstructionEngine_CPU<TVoxel,ITMPlainVoxelArray>::~ITMSceneReconstructionEngine_CPU(void) 
+ITMSceneReconstructionEngine_CPU<TVoxel,ITMPlainVoxelArray>::~ITMSceneReconstructionEngine_CPU(void)
 {}
 
 template<class TVoxel>
@@ -363,7 +364,7 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMPlainVoxelArray>::IntegrateInto
 		pt_model.z = (float)(z + arrayInfo->offset.z) * voxelSize;
 		pt_model.w = 1.0f;
 
-		ComputeUpdatedVoxelInfo<TVoxel::hasColorInformation,TVoxel>::compute(voxelArray[locId], pt_model, M_d, projParams_d, M_rgb, projParams_rgb, mu, maxW, 
+		ComputeUpdatedVoxelInfo<TVoxel::hasColorInformation,TVoxel>::compute(voxelArray[locId], pt_model, M_d, projParams_d, M_rgb, projParams_rgb, mu, maxW,
 			depth, depthImgSize, rgb, rgbImgSize);
 	}
 }
