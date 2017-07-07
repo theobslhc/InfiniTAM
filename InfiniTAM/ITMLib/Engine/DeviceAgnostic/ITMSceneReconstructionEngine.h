@@ -64,6 +64,9 @@ _CPU_AND_GPU_CODE_ inline void computeUpdatedVoxelColorInfo(DEVICEPTR(TVoxel) &v
 	oldC = TO_FLOAT3(buffV3u) / 255.0f;
 	newC = oldC;
 
+	//printf("%f %f %f %f\n",M_rgb.getValues()[0],M_rgb.getValues()[1],M_rgb.getValues()[2],M_rgb.getValues()[3]);
+	//printf("%u %u %u %u\n\n",rgb->getValues()[0],rgb->getValues()[1],rgb->getValues()[2],rgb->getValues()[3]);
+
 	pt_camera = M_rgb * pt_model;
 
 	pt_image.x = projParams_rgb.x * pt_camera.x / pt_camera.z + projParams_rgb.z;
@@ -84,6 +87,8 @@ _CPU_AND_GPU_CODE_ inline void computeUpdatedVoxelColorInfo(DEVICEPTR(TVoxel) &v
 
 	voxel.clr = buffV3u;
 	voxel.w_color = (uchar)newW;
+
+	//printf("%.2f %.2f %.2f\n",voxel.clr.x,voxel.clr.y,voxel.clr.z);
 }
 
 template<bool hasColor, class TVoxel> struct ComputeUpdatedVoxelInfo;

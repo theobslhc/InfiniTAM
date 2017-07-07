@@ -305,17 +305,7 @@ _CPU_AND_GPU_CODE_ inline int buildVertList(THREADPTR(Vector3f) *vertList,THREAD
 	if (edgeTable[cubeIndex] & 2048) vertListColorMap[11] = sdfInterpCol(colors[3], colors[7], sdfVals[3], sdfVals[7]);
 
 
-
-/*
-	for(int i=0; i<12; i++){
-
-
-		vertListColorMap[i].x = (float)colors[i%8].x/255.0;
-		vertListColorMap[i].y = (float)colors[i%8].y/255.0;
-		vertListColorMap[i].z = (float)colors[i%8].z/255.0;
-	}
-*/
-	//printf("x (%.2f %.2f %.2f), (%.2f %.2f %.2f), %.2f %.2f\n",points[0].x,points[0].y,points[0].z,points[1].x,points[1].y,points[1].z,sdfVals[0],sdfVals[1]);
+	//printf("x (%.6f %.6f %.6f) \n",colors[0].x,colors[0].y,colors[0].z);
 	//printf("interpol  (%.2f %.2f %.2f)\n\n",vertList[0].x,vertList[0].y,vertList[0].z);
 
 	return cubeIndex;

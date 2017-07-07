@@ -44,8 +44,17 @@ namespace ITMLib
 				}
 				else cpu_triangles = triangles;
 
+				ORUtils::MemoryBlock<Triangle> *cpu_trianglesColor; shoulDelete = false;
+				if (memoryType == MEMORYDEVICE_CUDA)
+				{
+					cpu_trianglesColor = new ORUtils::MemoryBlock<Triangle>(noMaxTriangles, MEMORYDEVICE_CPU);
+					cpu_trianglesColor->SetFrom(triangleColorMap, ORUtils::MemoryBlock<Triangle>::CUDA_TO_CPU);
+					shoulDelete = true;
+				}
+				else cpu_trianglesColor = triangleColorMap;
+
 				Triangle *triangleArray = cpu_triangles->GetData(MEMORYDEVICE_CPU);
-				Triangle *triangleColorMapArray = triangleColorMap->GetData(MEMORYDEVICE_CPU);
+				Triangle *triangleColorMapArray = cpu_trianglesColor->GetData(MEMORYDEVICE_CPU);
 
 				FILE *f = fopen(fileName, "w+");
 				if (f != NULL)
