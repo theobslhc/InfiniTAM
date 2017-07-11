@@ -66,16 +66,20 @@ namespace ITMLib
 						G = (triangleColorMapArray[i].p0.y + triangleColorMapArray[i].p1.y + triangleColorMapArray[i].p2.y)/3.0;
 						B = (triangleColorMapArray[i].p0.z + triangleColorMapArray[i].p1.z + triangleColorMapArray[i].p2.z)/3.0;
 
-						fprintf(f, "v %f %f %f %f %f %f\n", triangleArray[i].p0.x, triangleArray[i].p0.y, triangleArray[i].p0.z,R,G,B);
-						fprintf(f, "v %f %f %f %f %f %f\n", triangleArray[i].p1.x, triangleArray[i].p1.y, triangleArray[i].p1.z,R,G,B);
-						fprintf(f, "v %f %f %f %f %f %f\n", triangleArray[i].p2.x, triangleArray[i].p2.y, triangleArray[i].p2.z,R,G,B);
+						fprintf(f, "v %.4f %.4f %.4f %.4f %.4f %.4f\n", triangleArray[i].p0.x, triangleArray[i].p0.y, triangleArray[i].p0.z,R,G,B);
+						fprintf(f, "v %.4f %.4f %.4f %.4f %.4f %.4f\n", triangleArray[i].p1.x, triangleArray[i].p1.y, triangleArray[i].p1.z,R,G,B);
+						fprintf(f, "v %.4f %.4f %.4f %.4f %.4f %.4f\n", triangleArray[i].p2.x, triangleArray[i].p2.y, triangleArray[i].p2.z,R,G,B);
 						fprintf(f, "f %u %u %u\n", i * 3 + 3, i * 3 + 2, i * 3 + 1);
 					}
 
 					fclose(f);
 				}
 
-				if (shoulDelete) delete cpu_triangles;
+				if (shoulDelete) 
+				{
+					delete cpu_triangles;
+					delete cpu_trianglesColor;
+				}
 			}
 
 			void WriteSTL(const char *fileName)
@@ -117,12 +121,7 @@ namespace ITMLib
 
 						fwrite(&attribute, sizeof(short), 1, f);
 
-						//fprintf(f, "v %f %f %f\n", triangleArray[i].p0.x, triangleArray[i].p0.y, triangleArray[i].p0.z);
-						//fprintf(f, "v %f %f %f\n", triangleArray[i].p1.x, triangleArray[i].p1.y, triangleArray[i].p1.z);
-						//fprintf(f, "v %f %f %f\n", triangleArray[i].p2.x, triangleArray[i].p2.y, triangleArray[i].p2.z);
 					}
-
-					//for (uint i = 0; i<noTotalTriangles; i++) fprintf(f, "f %d %d %d\n", i * 3 + 2 + 1, i * 3 + 1 + 1, i * 3 + 0 + 1);
 					fclose(f);
 				}
 
