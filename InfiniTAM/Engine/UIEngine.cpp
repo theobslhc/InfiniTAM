@@ -338,6 +338,8 @@ void UIEngine::Initialise(int & argc, char** argv, ImageSourceEngine *imageSourc
 	this->imageSource = imageSource;
 	this->imuSource = imuSource;
 	this->mainEngine = mainEngine;
+
+
 	{
 		size_t len = strlen(outFolder);
 		this->outFolder = new char[len + 1];
@@ -387,6 +389,16 @@ void UIEngine::Initialise(int & argc, char** argv, ImageSourceEngine *imageSourc
 
 	bool allocateGPU = false;
 	if (deviceType == ITMLibSettings::DEVICE_CUDA) allocateGPU = true;
+
+	if(deviceType==ITMLibSettings::DEVICE_CUDA){
+		std::cout << "CUDA\n";
+	}
+	else if(deviceType==ITMLibSettings::DEVICE_CPU){
+		std::cout << "CPU\n";
+	}
+	if(deviceType==ITMLibSettings::DEVICE_METAL){
+		std::cout << "METAL\n";
+	}
 
 	for (int w = 0; w < NUM_WIN; w++)
 		outImage[w] = new ITMUChar4Image(imageSource->getDepthImageSize(), true, allocateGPU);
@@ -465,9 +477,11 @@ void UIEngine::ProcessFrame()
 	sdkResetTimer(&timer_instant);
 	sdkStartTimer(&timer_instant); sdkStartTimer(&timer_average);
 
+	std::cout << "process\n";
 	//actual processing on the mailEngine
 	if (imuSource != NULL) mainEngine->ProcessFrame(inputRGBImage, inputRawDepthImage, inputIMUMeasurement);
 	else mainEngine->ProcessFrame(inputRGBImage, inputRawDepthImage);
+	std::cout << "process end\n";
 
 #ifndef COMPILE_WITHOUT_CUDA
 	ITMSafeCall(cudaThreadSynchronize());
@@ -477,7 +491,11 @@ void UIEngine::ProcessFrame()
 	//processedTime = sdkGetTimerValue(&timer_instant);
 	processedTime = sdkGetAverageTimerValue(&timer_average);
 
+
+	SaveSceneToMesh("../mesh.stl");
+
 	currentFrameNo++;
+
 }
 
 void UIEngine::Run() { glutMainLoop(); }

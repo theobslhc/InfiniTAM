@@ -145,11 +145,47 @@ ITMMesh* ITMMainEngine::UpdateMesh(void)
 	return mesh;
 }
 
+
 void ITMMainEngine::SaveSceneToMesh(const char *objFileName)
 {
 	if (mesh == NULL) return;
 	meshingEngine->MeshScene(mesh, scene);
 	mesh->WriteSTL(objFileName);
+	mesh->WriteOBJ("../mesh.obj");
+}
+
+void ITMMainEngine::SaveSceneToMesh(const char *objFileName, int type)
+{
+	if (mesh == NULL) return;
+	meshingEngine->MeshScene(mesh, scene);
+
+	printf("Save to mesh\n");
+	char name[100];
+	const char* stl = ".stl";
+	const char* obj = ".obj";
+	strcpy(name,objFileName);
+
+	if(type==0){
+		strcat(name,stl);
+		mesh->WriteSTL(name);
+	}
+	else if(type==1){
+		strcat(name,obj);
+		mesh->WriteOBJ(name);
+	}
+	else{
+		char nameStl[100];
+		strcpy(nameStl,objFileName);
+		strcat(nameStl,stl);
+
+		printf("Save to stl\n");
+		mesh->WriteSTL(nameStl);
+
+		printf("Save to obj\n");
+
+		strcat(name,obj);
+		mesh->WriteOBJ(name);
+	}
 }
 
 void ITMMainEngine::ProcessFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, ITMIMUMeasurement *imuMeasurement)
