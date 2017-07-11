@@ -4,7 +4,11 @@
 *.sdf
 *.suo
 *.swp
+*.a
+*~
+lib/
 x64/
+/InfiniTAM/doxygen-html/
 /InfiniTAM/build/
 /InfiniTAM/buildx/
 /InfiniTAM/install/
