@@ -44,42 +44,6 @@ ITMMainEngine::ITMMainEngine(const ITMLibSettings *settings, const ITMRGBDCalib 
 		break;
 	}
 
-	/***** settings to string ****/
-	/*
-	std::cout << "use swappingggg " << settings->useSwapping << "\n";
-	std::cout << "useApproximateRaycast " << settings->useApproximateRaycast << "\n";
-	std::cout << "useBilateralFilter " << settings->useBilateralFilter << "\n";
-	std::cout << "modelSensorNoise " << settings->modelSensorNoise << "\n";
-	std::cout << "trackertype " << settings->trackerType << "\n";
-	std::cout << "noHierarchyLevels " << settings->noHierarchyLevels << "\n";
-	std::cout << "noICPRunTillLevel " << settings->noICPRunTillLevel << "\n";
-	std::cout << "skipPoints " << settings->skipPoints << "\n";
-	std::cout << "depthTrackerICPThreshold " << settings->depthTrackerICPThreshold << "\n";
-	std::cout << "depthTrackerTerminationThreshold " << settings->depthTrackerTerminationThreshold << "\n";
-
-	std::cout << "voxelSize " << settings->sceneParams.voxelSize << "\n";
-	std::cout << "viewFrustum_min " << settings->sceneParams.viewFrustum_min << "\n";
-	std::cout << "viewFrustum_max " << settings->sceneParams.viewFrustum_max << "\n";
-
-	std::cout << "intrinsics_rgb fx " << calib->intrinsics_rgb.projectionParamsSimple.fx << "\n";
-	std::cout << "intrinsics_rgb fy " << calib->intrinsics_rgb.projectionParamsSimple.fy << "\n";
-	std::cout << "intrinsics_rgb cx " << calib->intrinsics_rgb.projectionParamsSimple.px << "\n";
-	std::cout << "intrinsics_rgb cy " << calib->intrinsics_rgb.projectionParamsSimple.py << "\n";
-	std::cout << "intrinsics_d fx " << calib->intrinsics_d.projectionParamsSimple.fx << "\n";
-	std::cout << "intrinsics_d fy " << calib->intrinsics_d.projectionParamsSimple.fy << "\n";
-	std::cout << "intrinsics_d cx " << calib->intrinsics_d.projectionParamsSimple.px << "\n";
-	std::cout << "intrinsics_d cy " << calib->intrinsics_d.projectionParamsSimple.py << "\n";
-
-	std::cout << "img size rgb " << imgSize_rgb.x << " x "<< imgSize_rgb.y << "\n";
-	std::cout << "img size depth " << imgSize_d.x << " x "<< imgSize_d.y << "\n";
-
-	std::cout << "Trafo RGB to depth " << calib->trafo_rgb_to_depth.calib.getValues()[0] << " " << calib->trafo_rgb_to_depth.calib.getValues()[1] << " " << calib->trafo_rgb_to_depth.calib.getValues()[2] << " " << calib->trafo_rgb_to_depth.calib.getValues()[3]<< "\n";
-	std::cout << "                   " << calib->trafo_rgb_to_depth.calib.getValues()[4] << " " << calib->trafo_rgb_to_depth.calib.getValues()[5] << " " << calib->trafo_rgb_to_depth.calib.getValues()[6] << " " << calib->trafo_rgb_to_depth.calib.getValues()[7]<< "\n";
-	std::cout << "                   " << calib->trafo_rgb_to_depth.calib.getValues()[8] << " " << calib->trafo_rgb_to_depth.calib.getValues()[9] << " " << calib->trafo_rgb_to_depth.calib.getValues()[10] << " " << calib->trafo_rgb_to_depth.calib.getValues()[11]<< "\n";
-	std::cout << "                   " << calib->trafo_rgb_to_depth.calib.getValues()[12] << " " << calib->trafo_rgb_to_depth.calib.getValues()[13] << " " << calib->trafo_rgb_to_depth.calib.getValues()[14] << " " << calib->trafo_rgb_to_depth.calib.getValues()[15]<< "\n";
-
-*/
-
 	if(calib->disparityCalib.type==0){
 		std::cout << "Disparity calib type KINECT" << "\n";
 	}
@@ -182,7 +146,6 @@ void ITMMainEngine::SaveSceneToMesh(const char *objFileName, int type)
 		mesh->WriteSTL(nameStl);
 
 		printf("Save to obj\n");
-
 		strcat(name,obj);
 		mesh->WriteOBJ(name);
 	}
