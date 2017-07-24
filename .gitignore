@@ -4,6 +4,7 @@
 *.sdf
 *.suo
 *.swp
+*~
 .DS_Store
 x64/
 /InfiniTAM/build/
@@ -15,6 +16,7 @@ x64/
 /InfiniTAM/Files/Out/*.ppm
 /InfiniTAM/Files/Teddy/Frames
 /InfiniTAM/*.tags
+/InfiniTAM/doxygen-html
 
 # QtCreator CMake
 CMakeLists.txt.user*
