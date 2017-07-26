@@ -5,6 +5,7 @@
 *.suo
 *.swp
 *~
+*.gch
 .DS_Store
 x64/
 /InfiniTAM/build/
