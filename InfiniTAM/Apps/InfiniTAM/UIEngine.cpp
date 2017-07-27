@@ -255,7 +255,7 @@ void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 		uiEngine->integrationActive = !uiEngine->integrationActive;
 
 		ITMBasicEngine<ITMVoxel, ITMVoxelIndex> *basicEngine = dynamic_cast<ITMBasicEngine<ITMVoxel, ITMVoxelIndex>*>(uiEngine->mainEngine);
-		if (basicEngine != NULL) 
+		if (basicEngine != NULL)
 		{
 			if (uiEngine->integrationActive) basicEngine->turnOnIntegration();
 			else basicEngine->turnOffIntegration();
@@ -272,7 +272,7 @@ void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 	case 'w':
 	{
 		printf("saving scene to model ... ");
-		uiEngine->mainEngine->SaveSceneToMesh("mesh.stl");
+		uiEngine->mainEngine->SaveSceneToMesh("mesh.obj", 2);
 		printf("done\n");
 	}
 	break;
@@ -288,7 +288,7 @@ void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 	case 'k':
 	{
 		printf("saving scene to disk ... ");
-		
+
 		try
 		{
 			uiEngine->mainEngine->SaveToFile();
@@ -319,7 +319,7 @@ void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 	case ']':
 	{
 		ITMMultiEngine<ITMVoxel, ITMVoxelIndex> *multiEngine = dynamic_cast<ITMMultiEngine<ITMVoxel, ITMVoxelIndex>*>(uiEngine->mainEngine);
-		if (multiEngine != NULL) 
+		if (multiEngine != NULL)
 		{
 			int idx = multiEngine->getFreeviewLocalMapIdx();
 			if (key == '[') idx--;

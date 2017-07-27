@@ -46,7 +46,7 @@ ITMBasicSurfelEngine<TSurfel>::ITMBasicSurfelEngine(const ITMLibSettings *settin
 	tracker->UpdateInitialPose(trackingState);
 
 	view = NULL; // will be allocated by the view builder
-	
+
 	if (settings->behaviourOnFailure == settings->FAILUREMODE_RELOCALISE)
 		relocaliser = new FernRelocLib::Relocaliser<float>(imgSize_d, Vector2f(settings->sceneParams.viewFrustum_min, settings->sceneParams.viewFrustum_max), 0.2f, 500, 4);
 	else relocaliser = NULL;
@@ -92,7 +92,11 @@ void ITMBasicSurfelEngine<TSurfel>::SaveSceneToMesh(const char *objFileName)
 {
 	// Not yet implemented for surfel scenes
 }
-
+template <typename TSurfel>
+void ITMBasicSurfelEngine<TSurfel>::SaveSceneToMesh(const char *fileName, int type)
+{
+	//TODO:not implemented yet
+}
 template <typename TSurfel>
 void ITMBasicSurfelEngine<TSurfel>::SaveToFile()
 {
@@ -323,7 +327,7 @@ void ITMBasicSurfelEngine<TSurfel>::GetImage(ITMUChar4Image *out, GetImageType g
 	{
 	case ITMBasicSurfelEngine::InfiniTAM_IMAGE_ORIGINAL_RGB:
 		out->ChangeDims(view->rgb->noDims);
-		if (settings->deviceType == ITMLibSettings::DEVICE_CUDA) 
+		if (settings->deviceType == ITMLibSettings::DEVICE_CUDA)
 			out->SetFrom(view->rgb, ORUtils::MemoryBlock<Vector4u>::CUDA_TO_CPU);
 		else out->SetFrom(view->rgb, ORUtils::MemoryBlock<Vector4u>::CPU_TO_CPU);
 		break;
