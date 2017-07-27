@@ -52,7 +52,7 @@ ITMBasicEngine<TVoxel,TIndex>::ITMBasicEngine(const ITMLibSettings *settings, co
 	tracker->UpdateInitialPose(trackingState);
 
 	view = NULL; // will be allocated by the view builder
-	
+
 	if (settings->behaviourOnFailure == settings->FAILUREMODE_RELOCALISE)
 		relocaliser = new FernRelocLib::Relocaliser<float>(imgSize_d, Vector2f(settings->sceneParams.viewFrustum_min, settings->sceneParams.viewFrustum_max), 0.2f, 500, 4);
 	else relocaliser = NULL;
@@ -107,6 +107,19 @@ void ITMBasicEngine<TVoxel,TIndex>::SaveSceneToMesh(const char *objFileName)
 
 	delete mesh;
 }
+template <typename TVoxel, typename TIndex>
+void ITMBasicEngine<TVoxel,TIndex>::SaveSceneToMesh(const char *objFileName, int type)
+{
+
+	if (meshingEngine == NULL) return;
+
+	ITMMesh *mesh = new ITMMesh(settings->GetMemoryType());
+
+	meshingEngine->MeshScene(mesh, scene);
+
+	mesh->WriteOBJ(objFileName);
+	delete mesh;
+}
 
 template <typename TVoxel, typename TIndex>
 void ITMBasicEngine<TVoxel, TIndex>::SaveToFile()
@@ -115,7 +128,7 @@ void ITMBasicEngine<TVoxel, TIndex>::SaveToFile()
 
 	std::string saveOutputDirectory = "State/";
 	std::string relocaliserOutputDirectory = saveOutputDirectory + "Relocaliser/", sceneOutputDirectory = saveOutputDirectory + "Scene/";
-	
+
 	MakeDir(saveOutputDirectory.c_str());
 	MakeDir(relocaliserOutputDirectory.c_str());
 	MakeDir(sceneOutputDirectory.c_str());
@@ -142,7 +155,7 @@ void ITMBasicEngine<TVoxel, TIndex>::LoadFromFile()
 
 		relocaliser_temp->LoadFromDirectory(relocaliserInputDirectory);
 
-		delete relocaliser; 
+		delete relocaliser;
 		relocaliser = relocaliser_temp;
 	}
 	catch (std::runtime_error &e)
@@ -292,7 +305,7 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 			trackingState->pose_d->SetFrom(&keyframe.pose);
 
 			denseMapper->UpdateVisibleList(view, trackingState, scene, renderState_live, true);
-			trackingController->Prepare(trackingState, scene, view, visualisationEngine, renderState_live); 
+			trackingController->Prepare(trackingState, scene, view, visualisationEngine, renderState_live);
 			trackingController->Track(trackingState, view);
 
 			trackerResult = trackingState->trackerResult;
@@ -337,7 +350,7 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 	QuaternionFromRotationMatrix(R, q);
 	fprintf(stderr, "%f %f %f %f %f %f %f\n", t[0], t[1], t[2], q[1], q[2], q[3], q[0]);
 #endif
-    
+
     return trackerResult;
 }
 
@@ -358,7 +371,7 @@ void ITMBasicEngine<TVoxel,TIndex>::GetImage(ITMUChar4Image *out, GetImageType g
 	{
 	case ITMBasicEngine::InfiniTAM_IMAGE_ORIGINAL_RGB:
 		out->ChangeDims(view->rgb->noDims);
-		if (settings->deviceType == ITMLibSettings::DEVICE_CUDA) 
+		if (settings->deviceType == ITMLibSettings::DEVICE_CUDA)
 			out->SetFrom(view->rgb, ORUtils::MemoryBlock<Vector4u>::CUDA_TO_CPU);
 		else out->SetFrom(view->rgb, ORUtils::MemoryBlock<Vector4u>::CPU_TO_CPU);
 		break;

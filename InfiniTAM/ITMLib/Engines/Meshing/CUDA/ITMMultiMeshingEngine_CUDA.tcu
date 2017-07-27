@@ -11,7 +11,7 @@
 using namespace ITMLib;
 
 template<class TMultiVoxel, class TMultiIndex>
-__global__ void meshScene_device(ITMMesh::Triangle *triangles, unsigned int *noTriangles_device, float factor, int noTotalEntries,
+__global__ void meshScene_device(ITMMesh::Triangle *triangles, ITMMesh::Triangle *triangleColorMap, unsigned int *noTriangles_device, float factor, int noTotalEntries,
 	int noMaxTriangles, const Vector4s *visibleBlockGlobalPos, const TMultiVoxel *localVBAs, const TMultiIndex *hashTables);
 
 template<class TMultiIndex>
@@ -42,7 +42,7 @@ void ITMMultiMeshingEngine_CUDA<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMMesh *m
 {
 	const ITMSceneParams & sceneParams = *(sceneManager.getLocalMap(0)->scene->sceneParams);
 	int numLocalMaps = (int)sceneManager.numLocalMaps();
-	
+
 	{ // prepare MultiIndex etc.
 		if (numLocalMaps > MAX_NUM_LOCALMAPS) numLocalMaps = MAX_NUM_LOCALMAPS;
 		indexData_host.numLocalMaps = numLocalMaps;
@@ -64,6 +64,7 @@ void ITMMultiMeshingEngine_CUDA<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMMesh *m
 	}
 
 	ITMMesh::Triangle *triangles = mesh->triangles->GetData(MEMORYDEVICE_CUDA);
+	ITMMesh::Triangle *triangleColorMap = mesh->triangleColorMap->GetData(MEMORYDEVICE_CUDA);
 
 	typedef ITMMultiVoxel<TVoxel> VD;
 	typedef ITMMultiIndex<ITMVoxelBlockHash> ID;
@@ -86,7 +87,7 @@ void ITMMultiMeshingEngine_CUDA<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMMesh *m
 		dim3 cudaBlockSize(SDF_BLOCK_SIZE, SDF_BLOCK_SIZE, SDF_BLOCK_SIZE);
 		dim3 gridSize(SDF_LOCAL_BLOCK_NUM / 16, 16, numLocalMaps);
 
-		meshScene_device<VD, typename ID::IndexData> << <gridSize, cudaBlockSize >> >(triangles, noTriangles_device, factor, noTotalEntries, noMaxTriangles,
+		meshScene_device<VD, typename ID::IndexData> << <gridSize, cudaBlockSize >> >(triangles, triangleColorMap, noTriangles_device, factor, noTotalEntries, noMaxTriangles,
 			visibleBlockGlobalPos_device, voxelData_device, indexData_device);
 		ORcudaKernelCheck;
 
@@ -110,7 +111,7 @@ __global__ void findAllocateBlocks(Vector4s *visibleBlockGlobalPos, const TMulti
 }
 
 template<class TMultiVoxel, class TMultiIndex>
-__global__ void meshScene_device(ITMMesh::Triangle *triangles, unsigned int *noTriangles_device, float factor, int noTotalEntries,
+__global__ void meshScene_device(ITMMesh::Triangle *triangles, ITMMesh::Triangle *triangleColorMap, unsigned int *noTriangles_device, float factor, int noTotalEntries,
 	int noMaxTriangles, const Vector4s *visibleBlockGlobalPos, const TMultiVoxel *localVBAs, const TMultiIndex *hashTables)
 {
 	const Vector4s globalPos_4s = visibleBlockGlobalPos[blockIdx.x + gridDim.x * blockIdx.y + blockIdx.z * SDF_LOCAL_BLOCK_NUM];
@@ -120,7 +121,9 @@ __global__ void meshScene_device(ITMMesh::Triangle *triangles, unsigned int *noT
 	Vector3i globalPos = Vector3i(globalPos_4s.x, globalPos_4s.y, globalPos_4s.z) * SDF_BLOCK_SIZE;
 
 	Vector3f vertList[12];
-	int cubeIndex = buildVertListMulti(vertList, globalPos, Vector3i(threadIdx.x, threadIdx.y, threadIdx.z), localVBAs, hashTables, blockIdx.z);
+	Vector3f vertListColorMap[12];
+
+	int cubeIndex = buildVertListMulti(vertList,vertListColorMap, globalPos, Vector3i(threadIdx.x, threadIdx.y, threadIdx.z), localVBAs, hashTables, blockIdx.z);
 
 	if (cubeIndex < 0) return;
 
@@ -133,6 +136,10 @@ __global__ void meshScene_device(ITMMesh::Triangle *triangles, unsigned int *noT
 			triangles[triangleId].p0 = vertList[triangleTable[cubeIndex][i]] * factor;
 			triangles[triangleId].p1 = vertList[triangleTable[cubeIndex][i + 1]] * factor;
 			triangles[triangleId].p2 = vertList[triangleTable[cubeIndex][i + 2]] * factor;
+
+			triangleColorMap[triangleId].p0 = vertListColorMap[triangleTable[cubeIndex][i]];
+			triangleColorMap[triangleId].p1 = vertListColorMap[triangleTable[cubeIndex][i+1]];
+			triangleColorMap[triangleId].p2 = vertListColorMap[triangleTable[cubeIndex][i+2]];
 		}
 	}
 }

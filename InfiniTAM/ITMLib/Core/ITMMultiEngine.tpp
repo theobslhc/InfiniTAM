@@ -15,7 +15,7 @@ using namespace ITMLib;
 //#define DEBUG_MULTISCENE
 
 // number of nearest neighbours to find in the loop closure detection
-static const int k_loopcloseneighbours = 1;
+static const int k_loopcloseneighbours = 5;
 
 // maximum distance reported by LCD library to attempt relocalisation
 static const float F_maxdistattemptreloc = 0.05f;
@@ -220,7 +220,7 @@ ITMTrackingState::TrackingResult ITMMultiEngine<TVoxel, TIndex>::ProcessFrame(IT
 		currentLocalMap = mapManager->getLocalMap(currentLocalMapIdx);
 
 		// if a new relocalisation/loopclosure is started, this will do the initial raycasting before tracking can start
-		if (todoList[i].preprepare) 
+		if (todoList[i].preprepare)
 		{
 			denseMapper->UpdateVisibleList(view, currentLocalMap->trackingState, currentLocalMap->scene, currentLocalMap->renderState);
 			trackingController->Prepare(currentLocalMap->trackingState, currentLocalMap->scene, view, visualisationEngine, currentLocalMap->renderState);
@@ -239,7 +239,7 @@ ITMTrackingState::TrackingResult ITMMultiEngine<TVoxel, TIndex>::ProcessFrame(IT
 			ORUtils::SE3Pose oldPose(*(currentLocalMap->trackingState->pose_d));
 			trackingController->Track(currentLocalMap->trackingState, view);
 
-			// tracking is allowed to be poor only in the primary scenes. 
+			// tracking is allowed to be poor only in the primary scenes.
 			ITMTrackingState::TrackingResult trackingResult = currentLocalMap->trackingState->trackerResult;
 			if (mActiveDataManager->getLocalMapType(dataId) != ITMActiveMapManager::PRIMARY_LOCAL_MAP)
 				if (trackingResult == ITMTrackingState::TRACKING_POOR) trackingResult = ITMTrackingState::TRACKING_FAILED;
@@ -282,9 +282,9 @@ ITMTrackingState::TrackingResult ITMMultiEngine<TVoxel, TIndex>::ProcessFrame(IT
 
 	mScheduleGlobalAdjustment |= mActiveDataManager->maintainActiveData();
 
-	if (mScheduleGlobalAdjustment) 
+	if (mScheduleGlobalAdjustment)
 	{
-		if (mGlobalAdjustmentEngine->updateMeasurements(*mapManager)) 
+		if (mGlobalAdjustmentEngine->updateMeasurements(*mapManager))
 		{
 			if (separateThreadGlobalAdjustment) mGlobalAdjustmentEngine->wakeupSeparateThread();
 			else mGlobalAdjustmentEngine->runGlobalAdjustment();
@@ -306,7 +306,21 @@ void ITMMultiEngine<TVoxel, TIndex>::SaveSceneToMesh(const char *modelFileName)
 
 	meshingEngine->MeshScene(mesh, *mapManager);
 	mesh->WriteSTL(modelFileName);
-	
+
+	delete mesh;
+}
+
+template <typename TVoxel, typename TIndex>
+void ITMMultiEngine<TVoxel, TIndex>::SaveSceneToMesh(const char *modelFileName, int type)
+{
+
+	if (meshingEngine == NULL) return;
+
+	ITMMesh *mesh = new ITMMesh(settings->GetMemoryType());
+
+	meshingEngine->MeshScene(mesh,  *mapManager);
+
+	mesh->WriteOBJ(modelFileName);
 	delete mesh;
 }
 
@@ -363,7 +377,7 @@ void ITMMultiEngine<TVoxel, TIndex>::GetImage(ITMUChar4Image *out, GetImageType 
 		else raycastType = IITMVisualisationEngine::RENDER_FROM_OLD_FORWARDPROJ;
 
 		IITMVisualisationEngine::RenderImageType imageType;
-		switch (getImageType) 
+		switch (getImageType)
 		{
 		case ITMMultiEngine::InfiniTAM_IMAGE_COLOUR_FROM_CONFIDENCE:
 			imageType = IITMVisualisationEngine::RENDER_COLOUR_FROM_CONFIDENCE;
@@ -394,7 +408,7 @@ void ITMMultiEngine<TVoxel, TIndex>::GetImage(ITMUChar4Image *out, GetImageType 
 		else if (getImageType == ITMMultiEngine::InfiniTAM_IMAGE_FREECAMERA_COLOUR_FROM_NORMAL) type = IITMVisualisationEngine::RENDER_COLOUR_FROM_NORMAL;
 		else if (getImageType == ITMMultiEngine::InfiniTAM_IMAGE_FREECAMERA_COLOUR_FROM_CONFIDENCE) type = IITMVisualisationEngine::RENDER_COLOUR_FROM_CONFIDENCE;
 
-		if (freeviewLocalMapIdx >= 0) 
+		if (freeviewLocalMapIdx >= 0)
 		{
 			ITMLocalMap<TVoxel, TIndex> *activeData = mapManager->getLocalMap(freeviewLocalMapIdx);
 			if (renderState_freeview == NULL) renderState_freeview = visualisationEngine->CreateRenderState(activeData->scene, out->noDims);
@@ -407,7 +421,7 @@ void ITMMultiEngine<TVoxel, TIndex>::GetImage(ITMUChar4Image *out, GetImageType 
 				out->SetFrom(renderState_freeview->raycastImage, ORUtils::MemoryBlock<Vector4u>::CUDA_TO_CPU);
 			else out->SetFrom(renderState_freeview->raycastImage, ORUtils::MemoryBlock<Vector4u>::CPU_TO_CPU);
 		}
-		else 
+		else
 		{
 			if (renderState_multiscene == NULL) renderState_multiscene = multiVisualisationEngine->CreateRenderState(mapManager->getLocalMap(0)->scene, out->noDims);
 			multiVisualisationEngine->PrepareRenderState(*mapManager, renderState_multiscene);

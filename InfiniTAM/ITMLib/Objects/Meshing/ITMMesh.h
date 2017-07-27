@@ -17,10 +17,11 @@ namespace ITMLib
 		MemoryDeviceType memoryType;
 
 		uint noTotalTriangles;
-		static const uint noMaxTriangles_default = SDF_LOCAL_BLOCK_NUM * 32 * 16;
+		static const uint noMaxTriangles_default = SDF_LOCAL_BLOCK_NUM * 32;
 		uint noMaxTriangles;
 
 		ORUtils::MemoryBlock<Triangle> *triangles;
+		ORUtils::MemoryBlock<Triangle> *triangleColorMap;
 
 		explicit ITMMesh(MemoryDeviceType memoryType, uint maxTriangles = noMaxTriangles_default)
 		{
@@ -29,6 +30,7 @@ namespace ITMLib
 			this->noMaxTriangles = maxTriangles;
 
 			triangles = new ORUtils::MemoryBlock<Triangle>(noMaxTriangles, memoryType);
+			triangleColorMap = new ORUtils::MemoryBlock<Triangle>(noMaxTriangles, memoryType);
 		}
 
 		void WriteOBJ(const char *fileName)
@@ -42,23 +44,42 @@ namespace ITMLib
 			}
 			else cpu_triangles = triangles;
 
+			ORUtils::MemoryBlock<Triangle> *cpu_trianglesColor; shoulDelete = false;
+			if (memoryType == MEMORYDEVICE_CUDA)
+				{
+					cpu_trianglesColor = new ORUtils::MemoryBlock<Triangle>(noMaxTriangles, MEMORYDEVICE_CPU);
+					cpu_trianglesColor->SetFrom(triangleColorMap, ORUtils::MemoryBlock<Triangle>::CUDA_TO_CPU);
+					shoulDelete = true;
+				}
+				else cpu_trianglesColor = triangleColorMap;
+
 			Triangle *triangleArray = cpu_triangles->GetData(MEMORYDEVICE_CPU);
+		  Triangle *triangleColorMapArray = cpu_trianglesColor->GetData(MEMORYDEVICE_CPU);
 
 			FILE *f = fopen(fileName, "w+");
 			if (f != NULL)
 			{
 				for (uint i = 0; i < noTotalTriangles; i++)
 				{
-					fprintf(f, "v %f %f %f\n", triangleArray[i].p0.x, triangleArray[i].p0.y, triangleArray[i].p0.z);
-					fprintf(f, "v %f %f %f\n", triangleArray[i].p1.x, triangleArray[i].p1.y, triangleArray[i].p1.z);
-					fprintf(f, "v %f %f %f\n", triangleArray[i].p2.x, triangleArray[i].p2.y, triangleArray[i].p2.z);
-				}
+					float R,G,B;
+						R = (triangleColorMapArray[i].p0.x + triangleColorMapArray[i].p1.x + triangleColorMapArray[i].p2.x)/3.0;
+						G = (triangleColorMapArray[i].p0.y + triangleColorMapArray[i].p1.y + triangleColorMapArray[i].p2.y)/3.0;
+						B = (triangleColorMapArray[i].p0.z + triangleColorMapArray[i].p1.z + triangleColorMapArray[i].p2.z)/3.0;
+
+						fprintf(f, "v %f %f %f %f %f %f\n", triangleArray[i].p0.x, triangleArray[i].p0.y, triangleArray[i].p0.z,R,G,B);
+						fprintf(f, "v %f %f %f %f %f %f\n", triangleArray[i].p1.x, triangleArray[i].p1.y, triangleArray[i].p1.z,R,G,B);
+						fprintf(f, "v %f %f %f %f %f %f\n", triangleArray[i].p2.x, triangleArray[i].p2.y, triangleArray[i].p2.z,R,G,B);
+					}
 
 				for (uint i = 0; i<noTotalTriangles; i++) fprintf(f, "f %d %d %d\n", i * 3 + 2 + 1, i * 3 + 1 + 1, i * 3 + 0 + 1);
 				fclose(f);
 			}
 
-			if (shoulDelete) delete cpu_triangles;
+			if (shoulDelete)
+			{
+					delete cpu_triangles;
+				//	delete cpu_trianglesColor;
+			}
 		}
 
 		void WriteSTL(const char *fileName)
@@ -86,12 +107,12 @@ namespace ITMLib
 				{
 					fwrite(&zero, sizeof(float), 1, f); fwrite(&zero, sizeof(float), 1, f); fwrite(&zero, sizeof(float), 1, f);
 
-					fwrite(&triangleArray[i].p2.x, sizeof(float), 1, f); 
-					fwrite(&triangleArray[i].p2.y, sizeof(float), 1, f); 
+					fwrite(&triangleArray[i].p2.x, sizeof(float), 1, f);
+					fwrite(&triangleArray[i].p2.y, sizeof(float), 1, f);
 					fwrite(&triangleArray[i].p2.z, sizeof(float), 1, f);
 
-					fwrite(&triangleArray[i].p1.x, sizeof(float), 1, f); 
-					fwrite(&triangleArray[i].p1.y, sizeof(float), 1, f); 
+					fwrite(&triangleArray[i].p1.x, sizeof(float), 1, f);
+					fwrite(&triangleArray[i].p1.y, sizeof(float), 1, f);
 					fwrite(&triangleArray[i].p1.z, sizeof(float), 1, f);
 
 					fwrite(&triangleArray[i].p0.x, sizeof(float), 1, f);
